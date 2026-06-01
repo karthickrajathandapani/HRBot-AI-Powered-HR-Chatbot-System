@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR Portal — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0d1117;
+    --muted: #6b7280;
+    --accent: #ff6b35;
+    --accent2: #1a56db;
+    --gold: #f59e0b;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+    --error: #ef4444;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Animated background */
+  .bg-canvas {
+    position: fixed; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse at 20% 50%, #1a0a2e 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, #0a1628 0%, transparent 60%),
+                radial-gradient(ellipse at 60% 80%, #1a1008 0%, transparent 50%),
+                #0d1117;
+  }
+
+  .grid-lines {
+    position: fixed; inset: 0; z-index: 1;
+    background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .orb {
+    position: fixed; border-radius: 50%; filter: blur(80px); z-index: 1;
+    animation: drift 8s ease-in-out infinite alternate;
+  }
+  .orb-1 { width: 400px; height: 400px; background: rgba(255,107,53,0.12); top: -100px; left: -100px; }
+  .orb-2 { width: 300px; height: 300px; background: rgba(26,86,219,0.10); bottom: -50px; right: 10%; animation-delay: -3s; }
+  .orb-3 { width: 200px; height: 200px; background: rgba(245,158,11,0.08); top: 50%; left: 60%; animation-delay: -5s; }
+  @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(30px,20px) scale(1.1); } }
+
+  /* Floating particles */
+  .particle {
+    position: fixed; width: 2px; height: 2px; background: rgba(255,255,255,0.4);
+    border-radius: 50%; animation: float-up linear infinite;
+  }
+  @keyframes float-up { from { transform: translateY(100vh) translateX(0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } to { transform: translateY(-20px) translateX(30px); opacity: 0; } }
+
+  /* Main card */
+  .login-wrap {
+    position: relative; z-index: 10;
+    display: flex; gap: 0; border-radius: 24px; overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+    animation: card-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0; transform: translateY(40px);
+    max-width: 900px; width: 95vw;
+  }
+  @keyframes card-in { to { opacity: 1; transform: translateY(0); } }
+
+  /* Left panel */
+  .panel-left {
+    width: 340px; flex-shrink: 0;
+    background: linear-gradient(160deg, #1a0a3e 0%, #0d1117 100%);
+    padding: 56px 40px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    position: relative; overflow: hidden;
+  }
+  .panel-left::before {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='40' fill='none' stroke='rgba(255,107,53,0.06)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='25' fill='none' stroke='rgba(255,107,53,0.04)' stroke-width='1'/%3E%3C/svg%3E") repeat;
+    background-size: 80px 80px;
+  }
+
+  .brand { position: relative; }
+  .brand-icon {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, var(--accent), var(--gold));
+    border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin-bottom: 24px;
+    box-shadow: 0 8px 24px rgba(255,107,53,0.3);
+  }
+  .brand-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px; color: #fff; line-height: 1.2; margin-bottom: 8px;
+  }
+  .brand-sub { font-size: 13px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .panel-stats { position: relative; }
+  .stat-item { margin-bottom: 20px; }
+  .stat-num { font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--accent); }
+  .stat-label { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+  .panel-footer { position: relative; font-size: 11px; color: rgba(255,255,255,0.2); }
+
+  /* Right panel */
+  .panel-right {
+    flex: 1; background: var(--surface);
+    padding: 56px 48px;
+  }
+
+  .login-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px; color: var(--ink); margin-bottom: 6px;
+  }
+  .login-subtitle { font-size: 14px; color: var(--muted); margin-bottom: 40px; }
+
+  .field { margin-bottom: 20px; position: relative; }
+  .field label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: var(--ink); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 8px;
+  }
+  .field-wrap { position: relative; }
+  .field-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 16px; color: var(--muted); pointer-events: none;
+  }
+  .field input {
+    width: 100%; padding: 14px 14px 14px 42px;
+    border: 1.5px solid var(--border); border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; color: var(--ink);
+    background: #fafafa; transition: all 0.2s ease; outline: none;
+  }
+  .field input:focus {
+    border-color: var(--accent); background: #fff;
+    box-shadow: 0 0 0 4px rgba(255,107,53,0.08);
+  }
+  .field input::placeholder { color: #c0c4cc; }
+
+  .toggle-pw {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    cursor: pointer; font-size: 16px; color: var(--muted); user-select: none;
+  }
+
+  .quick-login {
+    background: #f8f9ff; border-radius: 12px; padding: 14px 16px; margin-bottom: 24px;
+    font-size: 13px; color: var(--muted);
+  }
+  .quick-login strong { color: var(--accent2); }
+  .quick-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    padding: 4px 10px; font-size: 12px; color: var(--ink); cursor: pointer;
+    margin: 4px 4px 0 0; transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+  }
+  .quick-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(255,107,53,0.04); }
+
+  .btn-login {
+    width: 100%; padding: 15px; border: none; border-radius: 12px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+    background: linear-gradient(135deg, var(--accent) 0%, #e55b2a 100%);
+    color: #fff; letter-spacing: 0.02em;
+    box-shadow: 0 4px 16px rgba(255,107,53,0.35);
+    transition: all 0.2s ease; position: relative; overflow: hidden;
+  }
+  .btn-login:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,107,53,0.4); }
+  .btn-login:active { transform: translateY(0); }
+  .btn-login.loading { pointer-events: none; }
+  .btn-login .btn-text { transition: opacity 0.2s; }
+  .btn-login .spinner {
+    position: absolute; inset: 0; display: none;
+    align-items: center; justify-content: center;
+  }
+  .btn-login.loading .btn-text { opacity: 0; }
+  .btn-login.loading .spinner { display: flex; }
+
+  .error-msg {
+    color: var(--error); font-size: 13px; margin-top: 12px;
+    padding: 10px 14px; background: rgba(239,68,68,0.06); border-radius: 8px;
+    border-left: 3px solid var(--error); display: none; animation: shake 0.3s ease;
+  }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+  @media(max-width: 680px) {
+    .panel-left { display: none; }
+    .panel-right { padding: 40px 28px; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-canvas"></div>
+<div class="grid-lines"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="login-wrap">
+  <div class="panel-left">
+    <div class="brand">
+      <div class="brand-icon">🏢</div>
+      <div class="brand-name">PeopleFirst<br>HR Portal</div>
+      <div class="brand-sub">Enterprise Edition</div>
+    </div>
+    <div class="panel-stats">
+      <div class="stat-item"><div class="stat-num">24/7</div><div class="stat-label">AI-Powered Support</div></div>
+      <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Policy Compliant</div></div>
+      <div class="stat-item"><div class="stat-num">Real-time</div><div class="stat-label">Leave Management</div></div>
+    </div>
+    <div class="panel-footer">© 2024 PeopleFirst HR · Powered by Llama 3.2</div>
+  </div>
+
+  <div class="panel-right">
+    <div class="login-title">Welcome back 👋</div>
+    <div class="login-subtitle">Sign in to access your HR dashboard and AI assistant</div>
+
+    <div class="quick-login">
+      <strong>Demo accounts:</strong><br>
+      <button class="quick-btn" onclick="fillLogin('EMP001','password123')">👨‍💻 Arun (EMP001)</button>
+      <button class="quick-btn" onclick="fillLogin('EMP002','priya2024')">👩 Priya (EMP002)</button>
+      <button class="quick-btn" onclick="fillLogin('EMP003','karthik@123')">👨‍💼 Karthik (EMP003)</button>
+    </div>
+
+    <div class="field">
+      <label>Employee ID</label>
+      <div class="field-wrap">
+        <span class="field-icon">🪪</span>
+        <input type="text" id="emp-id" placeholder="e.g. EMP001" autocomplete="username">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <div class="field-wrap">
+        <span class="field-icon">🔒</span>
+        <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+        <span class="toggle-pw" onclick="togglePw()">👁️</span>
+      </div>
+    </div>
+
+    <button class="btn-login" id="login-btn" onclick="doLogin()">
+      <span class="btn-text">Sign In →</span>
+      <span class="spinner">⏳ Verifying...</span>
+    </button>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+</div>
+
+<script>
+  // Particles
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.cssText=`left:${Math.random()*100}vw;animation-duration:${8+Math.random()*12}s;animation-delay:-${Math.random()*15}s;opacity:${Math.random()*0.5}`;
+    document.body.appendChild(p);
+  }
+
+  function fillLogin(id,pw){
+    document.getElementById('emp-id').value=id;
+    document.getElementById('password').value=pw;
+    document.getElementById('emp-id').dispatchEvent(new Event('input'));
+  }
+
+  function togglePw(){
+    const inp=document.getElementById('password');
+    inp.type=inp.type==='password'?'text':'password';
+  }
+
+  document.getElementById('password').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+
+  async function doLogin(){
+    const id=document.getElementById('emp-id').value.trim();
+    const pw=document.getElementById('password').value.trim();
+    const err=document.getElementById('error-msg');
+    const btn=document.getElementById('login-btn');
+
+    err.style.display='none';
+    if(!id||!pw){ err.textContent='Please fill in all fields.'; err.style.display='block'; return; }
+
+    btn.classList.add('loading');
+    try{
+      const res=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({employee_id:id,password:pw})});
+      const data=await res.json();
+      if(data.success){
+        btn.querySelector('.btn-text').textContent=`Welcome, ${data.name}! ✓`;
+        setTimeout(()=>window.location.href='/chat',600);
+      } else {
+        err.textContent=data.message||'Login failed.';
+        err.style.display='block';
+        btn.classList.remove('loading');
+      }
+    } catch(e){
+      err.textContent='Connection error. Please try again.';
+      err.style.display='block';
+      btn.classList.remove('loading');
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard — {{ employee.name }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#08090e;--s1:#0d0f16;--s2:#12151f;--s3:#181d2a;--s4:#1e2436;--b1:rgba(255,255,255,.05);--b2:rgba(255,255,255,.09);--tx:#dde3f2;--mu:#4e5c78;--mu2:#7a89a8;--ac:#ff6b35;--acd:#c94e1e;--acg:rgba(255,107,53,.12);--bl:#4a7cfc;--gr:#1ed97a;--ye:#f0a828;--re:#f05454;--pu:#9b72fb;--cy:#22d4d4}
+html,body{min-height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;-webkit-font-smoothing:antialiased}
+/* Nav */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:rgba(13,15,22,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:50}
+.nav-brand{display:flex;align-items:center;gap:10px;font-family:'DM Serif Display',serif;font-size:16px}
+.nav-ico{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--ac),var(--ye));display:flex;align-items:center;justify-content:center;font-size:15px}
+.nav-links{display:flex;gap:4px}
+.nav-link{padding:7px 14px;border-radius:9px;font-size:13px;font-weight:500;color:var(--mu2);cursor:pointer;text-decoration:none;transition:all .14s;border:1px solid transparent}
+.nav-link:hover{color:var(--tx);background:var(--s3)}
+.nav-link.active{color:var(--ac);background:var(--acg);border-color:rgba(255,107,53,.18)}
+.nav-r{display:flex;align-items:center;gap:10px}
+.nav-av{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--ac),var(--ye));display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:15px;color:#fff;font-weight:bold}
+/* Page */
+.page{max-width:1200px;margin:0 auto;padding:28px}
+.page-title{font-family:'DM Serif Display',serif;font-size:26px;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--mu2);margin-bottom:28px}
+/* Grid */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px}
+/* Stat cards */
+.stat{background:var(--s2);border:1px solid var(--b1);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;transition:transform .15s,border-color .15s}
+.stat:hover{transform:translateY(-2px);border-color:var(--b2)}
+.stat-icon{font-size:28px;margin-bottom:10px;display:block}
+.stat-val{font-size:28px;font-weight:800;line-height:1;margin-bottom:4px}
+.stat-label{font-size:12px;color:var(--mu2);font-weight:500}
+.stat-change{font-size:11px;margin-top:6px;display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px}
+.pos{background:rgba(30,217,122,.1);color:var(--gr)}.neg{background:rgba(240,84,84,.1);color:var(--re)}.neu{background:rgba(255,255,255,.06);color:var(--mu2)}
+.stat-glow{position:absolute;right:-20px;top:-20px;width:80px;height:80px;border-radius:50%;opacity:.08;filter:blur(20px)}
+/* Card */
+.card{background:var(--s2);border:1px solid var(--b1);border-radius:14px;padding:20px;margin-bottom:0}
+.card-title{font-size:13px;font-weight:600;color:var(--mu2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.card-title span{font-size:12px;color:var(--ac);cursor:pointer;text-transform:none;letter-spacing:0;font-weight:500}
+/* Leave donut */
+.donut-wrap{display:flex;align-items:center;gap:24px}
+.donut-svg{flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:8px;flex:1}
+.dl-item{display:flex;align-items:center;justify-content:space-between;font-size:12px}
+.dl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-right:7px}
+.dl-label{color:var(--mu2);display:flex;align-items:center}
+.dl-val{font-weight:700}
+/* Bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:100px;margin-top:8px}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;transition:height .5s cubic-bezier(.22,1,.36,1);min-height:2px}
+.bar-label{font-size:9px;color:var(--mu);text-align:center}
+.bar-val{font-size:9px;color:var(--mu2);font-weight:600}
+/* Leave balance cards */
+.lv-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.lvc{background:var(--s3);border:1px solid var(--b1);border-radius:11px;padding:14px}
+.lvc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.lvc-name{font-size:12px;font-weight:500;color:var(--mu2);display:flex;align-items:center;gap:5px}
+.lvc-num{font-size:22px;font-weight:800;line-height:1}
+.lvc-used{font-size:10px;color:var(--mu);margin-top:2px}
+.lv-bar{height:4px;background:rgba(255,255,255,.05);border-radius:2px;margin-top:8px}
+.lv-bar-f{height:100%;border-radius:2px;transition:width .6s ease}
+/* Timeline */
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--b1);position:relative}
+.tl-item:last-child{border-bottom:none}
+.tl-dot{width:28px;height:28px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px}
+.tl-body{flex:1}
+.tl-title{font-size:13px;font-weight:500;margin-bottom:2px}
+.tl-meta{font-size:11px;color:var(--mu)}
+.tl-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-top:4px}
+.ba{background:rgba(30,217,122,.1);color:var(--gr)}.bp{background:rgba(240,168,40,.1);color:var(--ye)}
+/* Profile summary */
+.prof-card{display:flex;gap:16px;align-items:flex-start}
+.prof-av{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--ac),var(--ye));display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:24px;color:#fff;flex-shrink:0}
+.prof-name{font-size:18px;font-weight:700;margin-bottom:3px}
+.prof-role{font-size:12px;color:var(--mu2);margin-bottom:8px}
+.prof-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.ptag{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:600}
+.pt-dept{background:rgba(74,124,252,.13);color:#7fa8ff}
+.pt-id{background:rgba(255,107,53,.11);color:var(--ac)}
+.prof-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.pi{font-size:11px;color:var(--mu);border-top:1px solid var(--b1);padding-top:8px}
+.pi strong{display:block;color:var(--mu2);font-size:12px;margin-bottom:2px}
+/* Upcoming events */
+.event-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--b1)}
+.event-item:last-child{border-bottom:none}
+.ev-ico{width:32px;height:32px;background:var(--s3);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ev-title{font-size:12px;font-weight:500;margin-bottom:2px}
+.ev-date{font-size:11px;color:var(--mu)}
+/* Gauge ring for usage */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+.gauge-pct{font-size:24px;font-weight:800;line-height:1}
+.gauge-label{font-size:11px;color:var(--mu2);text-align:center}
+/* Chat btn */
+.chat-fab{position:fixed;bottom:28px;right:28px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--acd));box-shadow:0 4px 20px rgba(255,107,53,.4);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:transform .18s;text-decoration:none;border:none}
+.chat-fab:hover{transform:scale(1.08)}
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07);border-radius:3px}
+@media(max-width:900px){.grid-4{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:1fr}}
+@media(max-width:600px){.grid-4{grid-template-columns:1fr}.grid-2{grid-template-columns:1fr}.nav-links{display:none}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-ico">🏢</div>
+    PeopleFirst HR
+  </div>
+  <div class="nav-links">
+    <a class="nav-link active" href="/dashboard">📊 Dashboard</a>
+    <a class="nav-link" href="/chat">🤖 HR Assistant</a>
+  </div>
+  <div class="nav-r">
+    <div class="nav-av">{{ employee.name[0] }}</div>
+    <span style="font-size:13px;color:var(--mu2)">{{ employee.name.split()[0] }}</span>
+    <button onclick="doLogout()" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(240,84,84,.2);background:rgba(240,84,84,.07);color:#f87171;font-size:12px;cursor:pointer;font-family:inherit">Logout</button>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-title">Welcome back, {{ employee.name.split()[0] }}! 👋</div>
+  <div class="page-sub">Here's your HR overview for today — {{ employee.department }} · {{ employee.designation }}</div>
+
+  <!-- Stat cards row -->
+  <div class="grid-4" id="stat-grid">
+    <div class="stat"><span class="stat-icon">📅</span><div class="stat-val" id="s-total-leaves">—</div><div class="stat-label">Total Leave Requests</div><div class="stat-glow" style="background:var(--ac)"></div></div>
+    <div class="stat"><span class="stat-icon">🟢</span><div class="stat-val" style="color:var(--gr)" id="s-total-bal">{{ employee.annual_leave_balance + employee.sick_leave_balance + employee.casual_leave_balance }}</div><div class="stat-label">Total Days Available</div><div class="stat-glow" style="background:var(--gr)"></div></div>
+    <div class="stat"><span class="stat-icon">💬</span><div class="stat-val" style="color:var(--bl)" id="s-chats">—</div><div class="stat-label">Chat Conversations</div><div class="stat-glow" style="background:var(--bl)"></div></div>
+    <div class="stat"><span class="stat-icon">🏢</span><div class="stat-val" style="color:var(--pu)" id="s-tenure">—</div><div class="stat-label">Tenure</div><div class="stat-glow" style="background:var(--pu)"></div></div>
+  </div>
+
+  <div class="grid-3">
+    <!-- Leave balance breakdown -->
+    <div class="card">
+      <div class="card-title">Leave Balance</div>
+      <div class="lv-cards">
+        <div class="lvc">
+          <div class="lvc-top"><div class="lvc-name"><span style="width:8px;height:8px;border-radius:50%;background:var(--gr);display:inline-block"></span>Annual</div></div>
+          <div class="lvc-num" style="color:var(--gr)">{{ employee.annual_leave_balance }}</div>
+          <div class="lvc-used">{{ employee.annual_leave_taken }} used · {{ employee.annual_leave_balance + employee.annual_leave_taken }} total</div>
+          <div class="lv-bar"><div class="lv-bar-f" style="background:var(--gr);width:{{ ((employee.annual_leave_balance/(employee.annual_leave_balance+employee.annual_leave_taken))*100)|int if (employee.annual_leave_balance+employee.annual_leave_taken)>0 else 0 }}%"></div></div>
+        </div>
+        <div class="lvc">
+          <div class="lvc-top"><div class="lvc-name"><span style="width:8px;height:8px;border-radius:50%;background:var(--bl);display:inline-block"></span>Sick</div></div>
+          <div class="lvc-num" style="color:var(--bl)">{{ employee.sick_leave_balance }}</div>
+          <div class="lvc-used">{{ employee.sick_leave_taken }} used · 6 total</div>
+          <div class="lv-bar"><div class="lv-bar-f" style="background:var(--bl);width:{{ ((employee.sick_leave_balance/6)*100)|int }}%"></div></div>
+        </div>
+        <div class="lvc">
+          <div class="lvc-top"><div class="lvc-name"><span style="width:8px;height:8px;border-radius:50%;background:var(--ye);display:inline-block"></span>Casual</div></div>
+          <div class="lvc-num" style="color:var(--ye)">{{ employee.casual_leave_balance }}</div>
+          <div class="lvc-used">{{ employee.casual_leave_taken }} used · 6 total</div>
+          <div class="lv-bar"><div class="lv-bar-f" style="background:var(--ye);width:{{ ((employee.casual_leave_balance/6)*100)|int }}%"></div></div>
+        </div>
+        <div class="lvc">
+          <div class="lvc-top"><div class="lvc-name"><span style="width:8px;height:8px;border-radius:50%;background:var(--re);display:inline-block"></span>LOP</div></div>
+          <div class="lvc-num" style="color:var(--re)">{{ employee.lop_taken }}</div>
+          <div class="lvc-used">Days deducted from pay</div>
+          <div class="lv-bar"><div class="lv-bar-f" style="background:var(--re);width:{{ [employee.lop_taken*20,100]|min }}%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leave type donut chart -->
+    <div class="card">
+      <div class="card-title">Leave by Type</div>
+      <div class="donut-wrap" id="donut-wrap">
+        <svg class="donut-svg" viewBox="0 0 100 100" width="110" height="110">
+          <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="14"/>
+          <circle id="arc-annual" cx="50" cy="50" r="38" fill="none" stroke="#1ed97a" stroke-width="14" stroke-dasharray="0 239" stroke-linecap="round" transform="rotate(-90 50 50)" style="transition:stroke-dasharray .8s ease"/>
+          <circle id="arc-sick"   cx="50" cy="50" r="38" fill="none" stroke="#4a7cfc" stroke-width="14" stroke-dasharray="0 239" stroke-linecap="round" transform="rotate(-90 50 50)" style="transition:stroke-dasharray .8s ease;transition-delay:.1s"/>
+          <circle id="arc-casual" cx="50" cy="50" r="38" fill="none" stroke="#f0a828" stroke-width="14" stroke-dasharray="0 239" stroke-linecap="round" transform="rotate(-90 50 50)" style="transition:stroke-dasharray .8s ease;transition-delay:.2s"/>
+          <circle id="arc-lop"   cx="50" cy="50" r="38" fill="none" stroke="#f05454" stroke-width="14" stroke-dasharray="0 239" stroke-linecap="round" transform="rotate(-90 50 50)" style="transition:stroke-dasharray .8s ease;transition-delay:.3s"/>
+          <text x="50" y="53" text-anchor="middle" font-size="12" font-weight="800" fill="#dde3f2" id="donut-center">0</text>
+        </svg>
+        <div class="donut-legend" id="donut-legend">
+          <div class="dl-item"><div class="dl-label"><div class="dl-dot" style="background:var(--gr)"></div>Annual</div><div class="dl-val" id="dl-annual">—</div></div>
+          <div class="dl-item"><div class="dl-label"><div class="dl-dot" style="background:var(--bl)"></div>Sick</div><div class="dl-val" id="dl-sick">—</div></div>
+          <div class="dl-item"><div class="dl-label"><div class="dl-dot" style="background:var(--ye)"></div>Casual</div><div class="dl-val" id="dl-casual">—</div></div>
+          <div class="dl-item"><div class="dl-label"><div class="dl-dot" style="background:var(--re)"></div>LOP</div><div class="dl-val" id="dl-lop">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly bar chart -->
+    <div class="card">
+      <div class="card-title">Monthly Leave Trend</div>
+      <div class="bar-chart" id="bar-chart">
+        <div style="font-size:11px;color:var(--mu);align-self:center">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Profile + info -->
+    <div class="card">
+      <div class="card-title">My Profile</div>
+      <div class="prof-card">
+        <div class="prof-av">{{ employee.name[0] }}</div>
+        <div style="flex:1">
+          <div class="prof-name">{{ employee.name }}</div>
+          <div class="prof-role">{{ employee.designation }} · {{ employee.department }}</div>
+          <div class="prof-tags">
+            <span class="ptag pt-dept">{{ employee.department }}</span>
+            <span class="ptag pt-id">{{ employee.employee_id }}</span>
+            {% if employee.is_admin %}<span class="ptag" style="background:rgba(155,114,251,.13);color:var(--pu)">Admin</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="prof-info">
+        <div class="pi"><strong>📧 Email</strong>{{ employee.email or '—' }}</div>
+        <div class="pi"><strong>📱 Phone</strong>{{ employee.phone or '—' }}</div>
+        <div class="pi"><strong>👔 Manager</strong>{{ employee.manager_name or '—' }}</div>
+        <div class="pi"><strong>👥 Team Lead</strong>{{ employee.team_lead_name or '—' }}</div>
+        <div class="pi"><strong>🚀 Project</strong>{{ employee.project or '—' }}</div>
+        <div class="pi"><strong>📅 Joined</strong>{{ employee.joined_date or '—' }}</div>
+        <div class="pi"><strong>🎓 Probation Ends</strong>{{ employee.probation_end_date or 'Completed' }}</div>
+        <div class="pi"><strong>💰 Salary</strong>₹{{ '{:,.0f}'.format(employee.salary) }}/month</div>
+      </div>
+    </div>
+
+    <!-- Leave history timeline -->
+    <div class="card">
+      <div class="card-title">Recent Leave History <span onclick="window.location='/chat'">View all →</span></div>
+      <div class="timeline" id="timeline">
+        <div style="font-size:12px;color:var(--mu);padding:10px 0">Loading history…</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Upcoming events -->
+    <div class="card">
+      <div class="card-title">Upcoming Events</div>
+      <div id="events-list">
+        <div style="font-size:12px;color:var(--mu)">Loading…</div>
+      </div>
+    </div>
+
+    <!-- Feedback widget -->
+    <div class="card">
+      <div class="card-title">Rate HR Assistant</div>
+      <div style="text-align:center;padding:10px 0">
+        <div style="font-size:13px;color:var(--mu2);margin-bottom:14px">How helpful was HRBot today?</div>
+        <div id="star-row" style="display:flex;justify-content:center;gap:8px;margin-bottom:16px">
+          <span class="star" data-v="1" onclick="setRating(1)" style="font-size:28px;cursor:pointer;opacity:.3;transition:all .13s">⭐</span>
+          <span class="star" data-v="2" onclick="setRating(2)" style="font-size:28px;cursor:pointer;opacity:.3;transition:all .13s">⭐</span>
+          <span class="star" data-v="3" onclick="setRating(3)" style="font-size:28px;cursor:pointer;opacity:.3;transition:all .13s">⭐</span>
+          <span class="star" data-v="4" onclick="setRating(4)" style="font-size:28px;cursor:pointer;opacity:.3;transition:all .13s">⭐</span>
+          <span class="star" data-v="5" onclick="setRating(5)" style="font-size:28px;cursor:pointer;opacity:.3;transition:all .13s">⭐</span>
+        </div>
+        <textarea id="fb-comment" placeholder="Any feedback? (optional)" style="width:100%;background:var(--s3);border:1px solid var(--b2);border-radius:9px;padding:10px 12px;color:var(--tx);font-family:inherit;font-size:12px;resize:none;height:60px;outline:none;margin-bottom:10px"></textarea>
+        <button onclick="submitFeedback()" style="width:100%;padding:10px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--ac),var(--acd));color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Submit Feedback</button>
+        <div id="fb-thanks" style="font-size:12px;color:var(--gr);margin-top:8px;display:none">Thanks for your feedback! 🙏</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chat FAB -->
+<a href="/chat" class="chat-fab" title="Open HR Assistant">🤖</a>
+
+<script>
+let fbRating = 0;
+
+async function loadDashboard() {
+  try {
+    const r = await fetch('/api/dashboard', {credentials:'include'});
+    if (r.status===401){window.location.replace('/login');return;}
+    const d = await r.json();
+
+    // Stats
+    document.getElementById('s-total-leaves').textContent = d.total_leaves;
+
+    // Tenure
+    const days = d.days_at_company;
+    const tenure = days >= 365 ? Math.floor(days/365)+'y '+(Math.floor((days%365)/30))+'m' : days+'d';
+    document.getElementById('s-tenure').textContent = tenure;
+
+    // Donut chart
+    const total = Object.values(d.by_type).reduce((a,b)=>a+b,0)||1;
+    document.getElementById('donut-center').textContent = d.total_leaves;
+    const colors = {annual:'#1ed97a',sick:'#4a7cfc',casual:'#f0a828',lop:'#f05454'};
+    const circumference = 2*Math.PI*38;
+    let offset = 0;
+    ['annual','sick','casual','lop'].forEach(type=>{
+      const count = d.by_type[type]||0;
+      const pct = count/total;
+      const len = pct*circumference;
+      const arc = document.getElementById('arc-'+type);
+      arc.style.strokeDasharray = `${len} ${circumference-len}`;
+      arc.style.strokeDashoffset = -offset;
+      offset += len;
+      const el = document.getElementById('dl-'+type);
+      if (el) el.textContent = count;
+    });
+
+    // Bar chart
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const maxVal = Math.max(...months.map(m=>d.monthly[m]||0),1);
+    const colors2 = ['#1ed97a','#4a7cfc','#f0a828','#f05454','#9b72fb','#22d4d4'];
+    const bc = document.getElementById('bar-chart');
+    bc.innerHTML = months.slice(0,8).map((m,i)=>{
+      const v = d.monthly[m]||0;
+      const h = Math.max((v/maxVal)*88,2);
+      return `<div class="bar-col">
+        <div class="bar-val">${v||''}</div>
+        <div class="bar-fill" style="height:${h}px;background:${colors2[i%colors2.length]};opacity:${v?1:.2}"></div>
+        <div class="bar-label">${m}</div>
+      </div>`;
+    }).join('');
+
+    // Timeline
+    const tl = document.getElementById('timeline');
+    const ic = {annual:'🟢',sick:'🔵',casual:'🟡',lop:'🔴'};
+    if (!d.recent_leaves.length) {
+      tl.innerHTML = '<div style="font-size:12px;color:var(--mu);padding:8px 0">No leave history yet</div>';
+    } else {
+      tl.innerHTML = d.recent_leaves.map(l=>`
+        <div class="tl-item">
+          <div class="tl-dot" style="background:var(--s3)">${ic[l.leave_type]||'📄'}</div>
+          <div class="tl-body">
+            <div class="tl-title">${l.leave_type.charAt(0).toUpperCase()+l.leave_type.slice(1)} Leave — ${l.leave_date}</div>
+            <div class="tl-meta">${l.reason||'No reason'} · Applied ${l.applied_on}</div>
+            <span class="tl-badge ba">${l.status}</span>
+          </div>
+        </div>`).join('');
+    }
+
+    // Events
+    const ev = document.getElementById('events-list');
+    if (!d.upcoming_events.length) {
+      ev.innerHTML = '<div style="font-size:12px;color:var(--mu)">No upcoming events</div>';
+    } else {
+      ev.innerHTML = d.upcoming_events.map(e=>`
+        <div class="event-item">
+          <div class="ev-ico">${e.icon}</div>
+          <div><div class="ev-title">${e.text}</div><div class="ev-date">📅 ${e.date}</div></div>
+        </div>`).join('');
+    }
+  } catch(e){ console.error(e); }
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch('/api/stats', {credentials:'include'});
+    const d = await r.json();
+    document.getElementById('s-chats').textContent = d.total_chats;
+  } catch(e){}
+}
+
+function setRating(v) {
+  fbRating = v;
+  document.querySelectorAll('.star').forEach((s,i)=>s.style.opacity=i<v?'1':'.3');
+}
+
+async function submitFeedback() {
+  if (!fbRating) { alert('Please select a star rating first!'); return; }
+  const comment = document.getElementById('fb-comment').value;
+  await fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({rating:fbRating,comment})});
+  document.getElementById('fb-thanks').style.display='block';
+  setTimeout(()=>document.getElementById('fb-thanks').style.display='none',3000);
+  setRating(0); document.getElementById('fb-comment').value='';
+}
+
+async function doLogout() {
+  try { await fetch('/logout',{credentials:'include'}); } catch(e){}
+  window.location.replace('/login');
+}
+
+loadDashboard();
+loadStats();
+</script>
+</body>
+</html>
